@@ -1,4 +1,10 @@
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const _supabase = window.supabase.createClient(
+    'https://urgjcgpdpbxwxigcepwl.supabase.co/rest/v1/',  // your Project URL
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZ2pjZ3BkcGJ4d3hpZ2NlcHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2OTMxMTAsImV4cCI6MjA5ODI2OTExMH0.Wvld5FpEwoZRNeL2ecDXYh5z42iwUzbbAHJXUM76FoQ'                   // your anon public key
+  )
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2761,17 +2767,22 @@ function doLogin() {
 
 /* ── Sign up ── */
 function doSignup() {
-  var org  = document.getElementById('signup-org').value.trim();
-  var name = document.getElementById('signup-name').value.trim();
-  var email= document.getElementById('signup-email').value.trim();
-  var pass = document.getElementById('signup-pass').value;
-  if (!name) { document.getElementById('signup-name').focus();  return; }
-  if (!email){ document.getElementById('signup-email').focus(); return; }
-  if (!pass) { document.getElementById('signup-pass').focus();  return; }
-  // Store org name so climbr-admin.html can pick it up
-  try { localStorage.setItem('climbr_pending_org', org); localStorage.setItem('climbr_pending_name', name); } catch(e){}
-  showOnboard();
+  async function doSignup() {
+  const name  = document.getElementById('signup-name').value.trim()
+  const email = document.getElementById('signup-email').value.trim()
+  const pass  = document.getElementById('signup-pass').value
+  if (!email || !pass) return;
+
+  const { data, error } = await _supabase.auth.signUp({
+    email, password: pass,
+    options: { data: { full_name: name } }
+  })
+
+  if (error) { showToast(error.message, 'red'); return; }
+  // Proceed to role selection screen
+  goToRoleSelect()
 }
+
 
 /* ── TOS toggle ── */
 /* toggleTos — defined in override block */
@@ -2862,10 +2873,56 @@ document.addEventListener('keydown', function(e) {
         <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-pass" type="password" placeholder="••••••••"/></div>
         <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;justify-content:center;margin-bottom:14px" onclick="doLogin()">Log In →</button>
         <div class="auth-divider">or</div>
-        <button class="auth-ghost" style="margin-top:8px" onclick="doLogin()">Create a new account</button>
-      </div>
-      <div class="auth-note">This is a demo — no account required.<br/>Click either button to explore. <span class="auth-link">Terms</span> · <span class="auth-link">Privacy</span></div>
-    </div>
+        <button class="auth-ghost" style="margin-top:8px" onclick="doLogin()async function doLogin() {
+  const email = document.getElementById('login-email').value.trim()
+  const pass  = document.getElementById('login-pass').value
+
+  const { data, error } = await _supabase.auth.signInWithPassword({
+    email, password: pass
+  })
+
+  if (error) { showToast('Invalid email or password', 'red'); return; }
+  // Load their org and go to dashboard
+  await loadUserOrg(data.user)
+  goToApp()
+}
+async function loadUserOrg(user) {
+  // Get the user's profile (which contains their org_id)
+  const { data: profile } = await _supabase
+    .from('profiles').select('*').eq('id', user.id).single()
+
+  if (!profile || !profile.org_id) {
+    // New user — no org yet, send to onboarding
+    showOnboard(); return;
+  }
+
+  // Load org details
+  const { data: org } = await _supabase
+    .from('organizations').select('*').eq('id', profile.org_id).single()
+
+  // Load members, sorted by points
+  const { data: members } = await _supabase
+    .from('members').select('*')
+    .eq('org_id', profile.org_id)
+    .order('points', { ascending: false })
+
+  // Update the global data object (D) that the dashboard reads from
+  D.orgName = org.name
+  D.season  = org.season_label
+  D.members = members || []
+  renderDashboard()
+}
+// Auto-login returning users
+_supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    await loadUserOrg(session.user)
+    goToApp()
+  } else if (event === 'SIGNED_OUT') {
+    // Show landing page
+    document.getElementById('app-layer').style.display = 'none'
+  }
+})
+
 
     <!-- ORG SELECT -->
     <div class="auth-screen" id="auth-org-select">
@@ -2943,6 +3000,26 @@ document.addEventListener('keydown', function(e) {
   </div>
   </div><!-- /auth-panel -->
 </div>
+async function createOrg(orgName, school) {
+  const user = (await _supabase.auth.getUser()).data.user
+
+  // Create the organization
+  const { data: org } = await _supabase
+    .from('organizations')
+    .insert({ name: orgName, school: school })
+    .select().single()
+
+  // Create a profile linking this user to the org as an officer
+  await _supabase.from('profiles').upsert({
+    id: user.id,
+    full_name: user.user_metadata?.full_name,
+    org_id: org.id,
+    role: 'officer'
+  })
+
+  D.orgName = org.name
+  D.orgId   = org.id
+}
 
 <div id="app">
 
