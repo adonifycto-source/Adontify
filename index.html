@@ -2442,7 +2442,7 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
       <p class="section-sub" style="margin: 0 auto 36px;">Create an account and have your chapter set up in under 10 minutes. Free to start.</p>
       <div class="cta-auth-row">
         <button class="btn-primary" onclick="openAuth('signup')">Create Account</button>
-        <button class="btn-ghost"   onclick="" style="opacity:.4;cursor:not-allowed;" disabled>Log In</button>
+        <button class="btn-ghost" onclick="openAuth('login')">Log In</button>
       </div>
       <p class="cta-note">No credit card required &middot; Free to get started</p>
     </div>
@@ -2496,24 +2496,28 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
         <span class="oauth-domain-badge">@university.edu</span>
       </button>
 
-      <button class="oauth-btn" onclick="showOnboard()">
+      <button class="oauth-btn" onclick="showToast('Microsoft sign-in coming soon!','var(--amber)')">
         <svg width="20" height="20" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
         <span class="oauth-btn-label">Continue with Microsoft</span>
-        <span class="oauth-domain-badge">@university.edu</span>
+        <span class="oauth-domain-badge">Coming soon</span>
       </button>
 
       <div class="auth-divider">
         <div class="auth-divider-line"></div>
-        <span class="auth-divider-text">or use an invite code</span>
+        <span class="auth-divider-text">or sign in with email</span>
         <div class="auth-divider-line"></div>
       </div>
 
-      <div class="invite-row">
-        <input class="auth-input" type="text" id="login-invite-code" placeholder="Invite code  (e.g. AEPi-2026)"/>
-        <button class="invite-btn" onclick="showToast('Invite codes coming soon!','var(--amber)')">Join</button>
-      </div>
+      <label class="auth-label">Email address</label>
+      <input class="auth-input" type="email" id="modal-login-email" placeholder="you@example.com" autocomplete="email"/>
+      <label class="auth-label" style="display:flex;justify-content:space-between;align-items:center">
+        Password
+        <button class="auth-switch-link" onclick="doForgotPassword()" style="font-size:11px">Forgot password?</button>
+      </label>
+      <input class="auth-input" type="password" id="modal-login-pass" placeholder="••••••••" autocomplete="current-password" style="margin-bottom:0"/>
+      <button class="auth-submit" onclick="doModalLogin()" style="margin-top:14px">Log In &#8594;</button>
 
-      <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:18px;line-height:1.7">
+      <p style="font-size:11px;color:var(--muted2);text-align:center;margin-top:16px;line-height:1.7">
         By signing in you agree to Adonify's
         <button class="auth-tos-link">Terms of Service</button>
         and <button class="auth-tos-link">Privacy Policy</button>
@@ -2567,7 +2571,7 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
 
     <!-- Org setup screen (after signup) -->
     <div class="auth-screen" id="screen-org-setup">
-      <button class="auth-back" onclick="showAuthScreens();switchTab('signup')">&#8592; Back</button>
+      <button class="auth-back" onclick="showAuthScreens();switchTab('login')">&#8592; Back</button>
       <div style="text-align:center;margin-bottom:20px">
         <div style="font-size:32px;margin-bottom:8px">&#127963;</div>
         <div style="font-size:17px;font-weight:600;color:var(--ice);margin-bottom:4px">Set up your organization</div>
@@ -2576,7 +2580,9 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
       <label class="auth-label">Organization name</label>
       <input class="auth-input" type="text" id="setup-org-name" placeholder="e.g. Alpha Epsilon Pi &#8212; Gamma Chapter"/>
       <label class="auth-label">School</label>
-      <input class="auth-input" type="text" id="setup-school" placeholder="e.g. Penn State University" style="margin-bottom:0"/>
+      <input class="auth-input" type="text" id="setup-school" placeholder="e.g. Penn State University"/>
+      <label class="auth-label">Semester</label>
+      <select class="auth-input" id="setup-season" style="cursor:pointer"></select>
       <button class="auth-submit" onclick="doOrgSetup()" style="margin-top:16px">Create My Organization &#8594;</button>
       <p style="font-size:12px;color:var(--muted2);text-align:center;margin-top:14px">
         Joining someone else\'s org?
@@ -2598,51 +2604,8 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
     </div>
 
     <!-- Role selection screen (legacy, hidden) -->
-    <div class="auth-screen" id="screen-role">
-      <button class="auth-back" onclick="showAuthScreens();switchTab('signup')">&#8592; Back</button>
-      <div class="auth-step-dots">
-        <div class="auth-step-dot done"></div>
-        <div class="auth-step-connector done"></div>
-        <div class="auth-step-dot active"></div>
-        <div class="auth-step-connector"></div>
-        <div class="auth-step-dot"></div>
-      </div>
-      <div style="text-align:center;margin-bottom:18px">
-        <div style="font-size:17px;font-weight:600;color:var(--ice);margin-bottom:4px">How are you joining?</div>
-        <div style="font-size:13px;color:var(--muted)">We'll set up the right experience for you</div>
-      </div>
-      <div class="role-grid">
-        <button class="role-card selected" id="role-officer" onclick="selectRole('officer')">
-          <div class="role-icon">&#128081;</div>
-          <div class="role-name">Chapter Officer</div>
-          <div class="role-desc">I run the chapter</div>
-        </button>
-        <button class="role-card" id="role-member" onclick="selectRole('member')">
-          <div class="role-icon">&#128587;</div>
-          <div class="role-name">Member</div>
-          <div class="role-desc">I'm joining an org</div>
-        </button>
-      </div>
-      <div id="role-officer-form">
-        <div class="role-detail-box">
-          <div style="font-size:12px;font-weight:600;color:var(--ice);margin-bottom:12px">Your chapter details</div>
-          <label class="auth-label">Organization name</label>
-          <input class="auth-input" type="text" id="role-org-name" placeholder="e.g. Alpha Epsilon Pi &#8212; Gamma Chapter"/>
-          <label class="auth-label">School</label>
-          <input class="auth-input" type="text" id="role-school" placeholder="e.g. Penn State University" style="margin-bottom:0"/>
-        </div>
-      </div>
-      <div id="role-member-form" style="display:none">
-        <label class="auth-label" style="margin-top:4px">Invite code</label>
-        <div class="invite-row">
-          <input class="auth-input" type="text" id="role-invite-code" placeholder="Enter invite code  (e.g. AEPi-2026)" style="margin-bottom:0"/>
-          <button class="invite-btn" onclick="showToast('Invite codes coming soon!','var(--amber)')">Join</button>
-        </div>
-        <p style="font-size:11px;color:var(--muted2);margin-top:8px">Ask your chapter president for an invite code</p>
-      </div>
-      <button class="auth-submit" id="role-continue-btn" onclick="continueFromRole()" style="margin-top:16px">Continue to setup &#8594;</button>
-      <p class="auth-disclaimer" id="role-domain-note">Your school email domain will verify members automatically</p>
-    </div>
+    <!-- Role screen (legacy — retired, kept as hidden stub so old references don't break) -->
+    <div class="auth-screen" id="screen-role" style="display:none"></div>
 
     <!-- Onboard screen (after auth) -->
     <div class="auth-screen" id="screen-onboard">
@@ -2791,17 +2754,84 @@ function continueFromRole() {
   }
 }
 
-/* ── Login ── */
+/* ── Modal login (auth-modal login screen) ── */
+async function doModalLogin() {
+  var email = document.getElementById('modal-login-email').value.trim();
+  var pass  = document.getElementById('modal-login-pass').value;
+  if (!email) { document.getElementById('modal-login-email').focus(); return; }
+  if (!pass)  { document.getElementById('modal-login-pass').focus();  return; }
+
+  var btn = document.querySelector('#screen-login .auth-submit');
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
+
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+  if (btn) { btn.disabled = false; btn.textContent = 'Log In →'; }
+  if (error) { showToast('Invalid email or password', 'red'); return; }
+
+  const { data: profile } = await _supabase
+    .from('profiles').select('org_id').eq('id', data.user.id).single();
+
+  if (profile && profile.org_id) {
+    closeAuth();
+    await loadUserOrg(data.user);
+    goToApp();
+  } else {
+    window._signupName = data.user.user_metadata?.full_name || data.user.email || '';
+    _authHandled = true;
+    document.getElementById('auth-tabs').style.display = 'none';
+    ['login','signup','signup-email','role','onboard'].forEach(function(s){
+      var el = document.getElementById('screen-' + s);
+      if (el) el.classList.remove('active');
+    });
+    var orgSetup = document.getElementById('screen-org-setup');
+    if (orgSetup) orgSetup.classList.add('active');
+  }
+}
+
+/* ── Forgot password ── */
+async function doForgotPassword() {
+  var email = document.getElementById('modal-login-email').value.trim();
+  if (!email) {
+    showToast('Enter your email address above first', 'var(--amber)');
+    document.getElementById('modal-login-email').focus();
+    return;
+  }
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin
+  });
+  if (error) { showToast(error.message, 'red'); return; }
+  showToast('Password reset email sent! Check your inbox.', 'var(--green)');
+}
+
+/* ── Login (legacy — auth-layer, kept for compat) ── */
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim()
-  const pass  = document.getElementById('login-pass').value
-  if (!email) { document.getElementById('login-email').focus(); return; }
-  if (!pass)  { document.getElementById('login-pass').focus();  return; }
+  const email = document.getElementById('login-email') ? document.getElementById('login-email').value.trim() : '';
+  const pass  = document.getElementById('login-pass')  ? document.getElementById('login-pass').value  : '';
+  if (!email || !pass) return;
 
   const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass })
   if (error) { showToast('Invalid email or password', 'red'); return; }
-  await loadUserOrg(data.user)
-  goToApp()
+
+  // Check if this user has already set up an org
+  const { data: profile } = await _supabase
+    .from('profiles').select('org_id').eq('id', data.user.id).single();
+
+  if (profile && profile.org_id) {
+    // Has org — load data and go to dashboard
+    await loadUserOrg(data.user);
+    goToApp();
+  } else {
+    // No org yet — send them through org setup
+    window._signupName = data.user.user_metadata?.full_name || data.user.email || '';
+    _authHandled = true; // prevent onAuthStateChange from double-firing
+    document.getElementById('auth-tabs').style.display = 'none';
+    ['login','signup','signup-email','role','onboard'].forEach(function(s){
+      var el = document.getElementById('screen-' + s);
+      if (el) el.classList.remove('active');
+    });
+    var orgSetup = document.getElementById('screen-org-setup');
+    if (orgSetup) orgSetup.classList.add('active');
+  }
 }
 
 async function loadUserOrg(user) {
@@ -2819,34 +2849,82 @@ async function loadUserOrg(user) {
   D.orgName = org.name
   D.season  = org.season_label
   D.members = members || []
+  var fullName = profile.full_name || user.user_metadata?.full_name || user.email || '';
+  updateSidebarUser(fullName);
   renderAll()
 }
 
 
 /* ── Google OAuth ── */
 async function signInWithGoogle() {
+  // Set a flag so onAuthStateChange knows this redirect came from us.
+  // sessionStorage survives the Google redirect (same tab navigation) but
+  // won't be there on a plain page visit, so it's the right discriminator.
+  sessionStorage.setItem('_adonify_oauth_pending', '1');
   const { error } = await _supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: window.location.origin,
-      queryParams: { prompt: 'select_account' }   // always show account picker
+      queryParams: { prompt: 'select_account' }
     }
   });
-  if (error) showToast(error.message, 'red');
+  if (error) { sessionStorage.removeItem('_adonify_oauth_pending'); showToast(error.message, 'red'); }
 }
 
-// Auto-login returning users (also handles Google OAuth callback)
+/* ── Sidebar user info ── */
+function updateSidebarUser(fullName) {
+  var name = (fullName || '').trim() || 'Officer';
+  var parts = name.split(' ');
+  var initials = parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+  var colors = ['#4A90D9','#C0392B','#27AE60','#8E44AD','#E67E22','#16A085'];
+  var color = colors[name.charCodeAt(0) % colors.length];
+  var av = document.getElementById('sidebar-user-av');
+  var nm = document.getElementById('sidebar-user-name');
+  var rl = document.getElementById('sidebar-user-role');
+  if (av) { av.textContent = initials; av.style.background = color; }
+  if (nm) nm.innerHTML = sanitizeBasic(name) + ' <span class="admin-tag">ADMIN</span>';
+  if (rl) rl.textContent = 'Officer';
+}
+function sanitizeBasic(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Season picker helpers ── */
+function _defaultSeason() {
+  var m = new Date().getMonth(); // 0=Jan
+  var y = new Date().getFullYear();
+  return (m >= 7 ? 'Fall ' : 'Spring ') + y;
+}
+function _populateSeasonPicker() {
+  var sel = document.getElementById('setup-season');
+  if (!sel) return;
+  var y = new Date().getFullYear();
+  var options = [];
+  for (var i = -1; i <= 2; i++) {
+    options.push('Spring ' + (y + i));
+    options.push('Fall '   + (y + i));
+  }
+  var def = _defaultSeason();
+  sel.innerHTML = options.map(function(o) {
+    return '<option value="' + o + '"' + (o === def ? ' selected' : '') + '>' + o + '</option>';
+  }).join('');
+}
+// Populate on page load
+(function(){ _populateSeasonPicker(); })();
+
+// Handles Google OAuth callback only — email login is handled directly by doModalLogin()
 var _authHandled = false;
 _supabase.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_OUT') { _authHandled = false; return; }
   if (_authHandled || !session) return;
 
-  // Only act on an actual OAuth redirect — not on session restore (normal page visits).
-  // After Google OAuth, the URL will contain ?code= (PKCE) or #access_token= (implicit).
-  // A plain visit to adonify.net has neither, so we leave the landing page alone.
-  var url = window.location.href;
-  var isOAuthRedirect = /[#&?](access_token|code)=/.test(url);
-  if (!isOAuthRedirect) return;
+  // Only run for Google OAuth callbacks (flag set in signInWithGoogle before redirect).
+  // Normal page visits and email logins don't set this flag, so they're unaffected.
+  var isOAuthCallback = sessionStorage.getItem('_adonify_oauth_pending') === '1';
+  sessionStorage.removeItem('_adonify_oauth_pending');
+  if (!isOAuthCallback) return;
 
   _authHandled = true;
   var user = session.user;
@@ -2862,7 +2940,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
   var orgSetup = document.getElementById('screen-org-setup');
   if (orgSetup) orgSetup.classList.add('active');
 
-  // Check profile in background — returning user goes straight to dashboard
+  // Check profile in background — returning Google user skips org setup
   var profileRes = await _supabase
     .from('profiles').select('org_id').eq('id', user.id).single();
   var profile = profileRes.data;
@@ -2937,10 +3015,12 @@ async function doOrgSetup() {
   var user = null;
   try { user = (await _supabase.auth.getUser()).data.user; } catch(e) {}
 
+  var seasonVal = (document.getElementById('setup-season') ? document.getElementById('setup-season').value : '') || _defaultSeason();
+
   if (user) {
     try {
       const { data: org } = await _supabase.from('organizations')
-        .insert({ name: orgName, school: school || '', season_label: 'Fall 2026', min_points: 500 })
+        .insert({ name: orgName, school: school || '', season_label: seasonVal, min_points: 500 })
         .select().single();
       await _supabase.from('profiles').upsert({
         id: user.id,
@@ -2949,15 +3029,15 @@ async function doOrgSetup() {
         role: 'officer'
       });
       D.orgName = org.name;
-      D.season  = org.season_label || 'Fall 2026';
+      D.season  = org.season_label || seasonVal;
       D.orgId   = org.id;
     } catch(e) {
       D.orgName = orgName;
-      D.season  = 'Fall 2026';
+      D.season  = seasonVal;
     }
   } else {
     D.orgName = orgName;
-    D.season  = 'Fall 2026';
+    D.season  = seasonVal;
   }
 
   D.members      = [];
@@ -2966,17 +3046,19 @@ async function doOrgSetup() {
   D.applications = [];
   D.activity     = [];
   D.minPts       = 500;
-  var tb = document.getElementById('tb-org');
-  if (tb) tb.textContent = D.orgName;
-  var ts = document.getElementById('tb-season');
-  if (ts) ts.textContent = D.season;
 
   if (btn) { btn.disabled = false; btn.textContent = 'Create My Organization →'; }
   closeAuth();
+  document.querySelectorAll('nav,section,footer').forEach(function(el){ el.style.display = 'none'; });
+  document.body.style.overflow = 'hidden';
+  document.body.classList.remove('landing-active');
   var appLayer  = document.getElementById('app-layer');
   var authLayer = document.getElementById('auth-layer');
   if (appLayer)  appLayer.style.display = 'flex';
   if (authLayer) { authLayer.classList.add('fade-out'); setTimeout(function(){ authLayer.style.display='none'; }, 380); }
+  demoMode = false;
+  _appLaunched = true;
+  updateSidebarUser(window._signupName || (user && (user.user_metadata?.full_name || user.email)) || '');
   renderAll();
   saveData();
   addNotif('✨ Your organization "' + orgName + '" is ready! Add members from the Members tab.');
@@ -3221,10 +3303,10 @@ async function createOrg(orgName, school) {
   <div class="nav-item" id="nav-settings" onclick="switchView('settings')"><span class="nav-icon">⚙️</span>Settings</div>
 
   <div class="sidebar-user">
-    <div class="av user-av" style="background:#4A90D9">JT</div>
+    <div class="av user-av" id="sidebar-user-av" style="background:#4A90D9">JT</div>
     <div class="user-info">
-      <div class="user-name">Jordan T. <span class="admin-tag">ADMIN</span></div>
-      <div class="user-role">President</div>
+      <div class="user-name" id="sidebar-user-name">Jordan T. <span class="admin-tag">ADMIN</span></div>
+      <div class="user-role" id="sidebar-user-role">President</div>
     </div>
     <button onclick="logOut()" title="Log out" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;border-radius:5px;transition:color .15s;flex-shrink:0" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted)'">&#9211;</button>
   </div>
@@ -3275,6 +3357,34 @@ async function createOrg(orgName, school) {
         <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-num" id="s-atrisk" style="color:var(--red)">1</div><div class="stat-label">At-Risk Members</div></div>
         <div class="stat-card streak-stat-card"><div class="stat-icon">🔥</div><div class="stat-num" id="s-streak">7</div><div class="stat-label">Your Task Streak</div></div>
       </div>
+      <!-- Empty-state onboarding card (hidden once members are added) -->
+      <div id="dash-onboard-card" style="display:none;background:linear-gradient(135deg,rgba(245,166,35,.08),rgba(59,130,246,.06));border:1px solid rgba(245,166,35,.25);border-radius:14px;padding:28px 28px 24px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+          <div style="font-size:28px">🚀</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--ice)">Welcome to Adonify!</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:2px">Your org is set up. Here's what to do next:</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="qaction" onclick="switchView('members');setTimeout(function(){document.getElementById('members-add-btn')&&document.getElementById('members-add-btn').click();},200)" style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2)">
+            <span class="qaction-icon">👥</span>
+            <div><div style="font-weight:600;color:var(--ice)">Add your first member</div><div style="font-size:12px;color:var(--muted)">Build your roster</div></div>
+            <span style="margin-left:auto;color:var(--amber);font-size:13px">→</span>
+          </div>
+          <div class="qaction" onclick="openCreateTask()" style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15)">
+            <span class="qaction-icon">✅</span>
+            <div><div style="font-weight:600;color:var(--ice)">Create your first task</div><div style="font-size:12px;color:var(--muted)">Assign points to activities</div></div>
+            <span style="margin-left:auto;color:var(--blue);font-size:13px">→</span>
+          </div>
+          <div class="qaction" onclick="exploreDemo()" style="background:rgba(39,174,96,.07);border:1px solid rgba(39,174,96,.15)">
+            <span class="qaction-icon">🎯</span>
+            <div><div style="font-weight:600;color:var(--ice)">Explore a sample chapter</div><div style="font-size:12px;color:var(--muted)">See what a full org looks like</div></div>
+            <span style="margin-left:auto;color:var(--green);font-size:13px">→</span>
+          </div>
+        </div>
+      </div>
+
       <div class="two-col">
         <div>
           <div class="card">
@@ -4777,6 +4887,10 @@ function renderDashboard(){
   document.getElementById('lb-season-label').textContent=D.season;
   document.getElementById('set-org-name').value=D.orgName;
   document.getElementById('set-season').value=D.season;
+
+  /* Empty-state onboarding card — shown when org has no members yet */
+  var onboardCard = document.getElementById('dash-onboard-card');
+  if (onboardCard) onboardCard.style.display = D.members.length === 0 ? 'block' : 'none';
 
   /* Activity */
   var act=document.getElementById('dash-activity');
