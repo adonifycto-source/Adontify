@@ -7644,6 +7644,10 @@ function goToApp(mode){
   if(am){am.style.display='';am.classList.remove('open');}  // use CSS default, no inline override
   var app=document.getElementById('app-layer');
   if(app){app.style.display='flex';}
+  // For the Supabase auth path (no mode), auth-layer lives inside app-layer and
+  // would show by default (display:flex in CSS). Hide it — the user already authenticated
+  // through auth-modal and has no reason to see the legacy auth-layer wizard.
+  if(!mode){var authL=document.getElementById('auth-layer');if(authL){authL.style.display='none';}}
   if(mode==='new'){
     showSetupWizard();
     return;
@@ -7889,9 +7893,12 @@ function launchApp(mode){
     addNotif('Demo mode — explore a sample chapter. Changes won’t be saved.');
   }else if(mode==='join'){
     goAuth('join-org');
-  }else{
+  }else if(mode){
+    // Unknown mode — show org select (legacy fallback)
     goAuth('org-select');
   }
+  // mode===undefined means the caller is the Supabase auth path;
+  // auth-layer is already hidden by goToApp(), nothing to show here.
 }
 
 /* ── AUTO-RESTORE (only when PERSISTENCE_ENABLED) ── */
