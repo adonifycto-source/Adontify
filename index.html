@@ -2838,33 +2838,40 @@ async function signInWithGoogle() {
 // Auto-login returning users (also handles Google OAuth callback)
 var _authHandled = false;
 _supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session && !_authHandled) {
-    _authHandled = true;
-    const user = session.user;
-    window._signupName = user.user_metadata?.full_name || '';
+  if (event === 'SIGNED_OUT') { _authHandled = false; return; }
+  if (_authHandled || !session) return;
 
-    // Show org setup modal IMMEDIATELY — no waiting for DB
-    openAuth('signup');
-    document.getElementById('auth-tabs').style.display = 'none';
-    ['login','signup','signup-email','role','onboard'].forEach(function(s){
-      var el = document.getElementById('screen-' + s);
-      if (el) el.classList.remove('active');
-    });
-    var orgSetup = document.getElementById('screen-org-setup');
-    if (orgSetup) orgSetup.classList.add('active');
+  // Only act on an actual OAuth redirect — not on session restore (normal page visits).
+  // After Google OAuth, the URL will contain ?code= (PKCE) or #access_token= (implicit).
+  // A plain visit to adonify.net has neither, so we leave the landing page alone.
+  var url = window.location.href;
+  var isOAuthRedirect = /[#&?](access_token|code)=/.test(url);
+  if (!isOAuthRedirect) return;
 
-    // Check profile in background — if returning user, go to dashboard instead
-    const { data: profile } = await _supabase
-      .from('profiles').select('org_id').eq('id', user.id).single();
-    if (profile && profile.org_id) {
-      closeAuth();
-      await loadUserOrg(user);
-      goToApp();
-    }
-    // else: new user, org setup is already showing — nothing to do
-  } else if (event === 'SIGNED_OUT') {
-    _authHandled = false;
+  _authHandled = true;
+  var user = session.user;
+  window._signupName = user.user_metadata?.full_name || '';
+
+  // Show org setup immediately (no DB wait)
+  openAuth('signup');
+  document.getElementById('auth-tabs').style.display = 'none';
+  ['login','signup','signup-email','role','onboard'].forEach(function(s){
+    var el = document.getElementById('screen-' + s);
+    if (el) el.classList.remove('active');
+  });
+  var orgSetup = document.getElementById('screen-org-setup');
+  if (orgSetup) orgSetup.classList.add('active');
+
+  // Check profile in background — returning user goes straight to dashboard
+  var profileRes = await _supabase
+    .from('profiles').select('org_id').eq('id', user.id).single();
+  var profile = profileRes.data;
+  if (profile && profile.org_id) {
+    closeAuth();
+    await loadUserOrg(user);
+    goToApp();
   }
+  // else: new user — org setup modal stays open
 })
 
 /* ── Sign up ── */
