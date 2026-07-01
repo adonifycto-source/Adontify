@@ -2757,21 +2757,52 @@ function continueFromRole() {
 }
 
 /* ── Login ── */
-function doLogin() {
-  var email = document.getElementById('login-email').value.trim();
-  var pass  = document.getElementById('login-pass').value;
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim()
+  const pass  = document.getElementById('login-pass').value
   if (!email) { document.getElementById('login-email').focus(); return; }
   if (!pass)  { document.getElementById('login-pass').focus();  return; }
-  showOnboard();
+
+  const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass })
+  if (error) { showToast('Invalid email or password', 'red'); return; }
+  await loadUserOrg(data.user)
+  goToApp()
 }
 
+async function loadUserOrg(user) {
+  const { data: profile } = await _supabase
+    .from('profiles').select('*').eq('id', user.id).single()
+  if (!profile || !profile.org_id) { showOnboard(); return; }
+
+  const { data: org } = await _supabase
+    .from('organizations').select('*').eq('id', profile.org_id).single()
+  const { data: members } = await _supabase
+    .from('members').select('*')
+    .eq('org_id', profile.org_id)
+    .order('points', { ascending: false })
+
+  D.orgName = org.name
+  D.season  = org.season_label
+  D.members = members || []
+  renderAll()
+}
+
+// Auto-login returning users
+_supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    await loadUserOrg(session.user)
+    goToApp()
+  } else if (event === 'SIGNED_OUT') {
+    document.getElementById('app-layer').style.display = 'none'
+  }
+})
+
 /* ── Sign up ── */
-function doSignup() {
-  async function doSignup() {
+async function doSignup() {
   const name  = document.getElementById('signup-name').value.trim()
   const email = document.getElementById('signup-email').value.trim()
   const pass  = document.getElementById('signup-pass').value
-  if (!email || !pass) return;
+  if (!email || !pass) { showToast('Please fill in all fields', 'red'); return; }
 
   const { data, error } = await _supabase.auth.signUp({
     email, password: pass,
@@ -2779,7 +2810,7 @@ function doSignup() {
   })
 
   if (error) { showToast(error.message, 'red'); return; }
-  // Proceed to role selection screen
+  showToast('Account created! Check your email to verify.', 'var(--green)')
   goToRoleSelect()
 }
 
@@ -2873,56 +2904,7 @@ document.addEventListener('keydown', function(e) {
         <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-pass" type="password" placeholder="••••••••"/></div>
         <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;justify-content:center;margin-bottom:14px" onclick="doLogin()">Log In →</button>
         <div class="auth-divider">or</div>
-        <button class="auth-ghost" style="margin-top:8px" onclick="doLogin()async function doLogin() {
-  const email = document.getElementById('login-email').value.trim()
-  const pass  = document.getElementById('login-pass').value
-
-  const { data, error } = await _supabase.auth.signInWithPassword({
-    email, password: pass
-  })
-
-  if (error) { showToast('Invalid email or password', 'red'); return; }
-  // Load their org and go to dashboard
-  await loadUserOrg(data.user)
-  goToApp()
-}
-async function loadUserOrg(user) {
-  // Get the user's profile (which contains their org_id)
-  const { data: profile } = await _supabase
-    .from('profiles').select('*').eq('id', user.id).single()
-
-  if (!profile || !profile.org_id) {
-    // New user — no org yet, send to onboarding
-    showOnboard(); return;
-  }
-
-  // Load org details
-  const { data: org } = await _supabase
-    .from('organizations').select('*').eq('id', profile.org_id).single()
-
-  // Load members, sorted by points
-  const { data: members } = await _supabase
-    .from('members').select('*')
-    .eq('org_id', profile.org_id)
-    .order('points', { ascending: false })
-
-  // Update the global data object (D) that the dashboard reads from
-  D.orgName = org.name
-  D.season  = org.season_label
-  D.members = members || []
-  renderDashboard()
-}
-// Auto-login returning users
-_supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session) {
-    await loadUserOrg(session.user)
-    goToApp()
-  } else if (event === 'SIGNED_OUT') {
-    // Show landing page
-    document.getElementById('app-layer').style.display = 'none'
-  }
-})
-
+                <button class="auth-ghost" style="margin-top:8px" onclick="goAuth('org-select')">🏛️ Set Up Your Org</button>
 
     <!-- ORG SELECT -->
     <div class="auth-screen" id="auth-org-select">
@@ -6962,10 +6944,7 @@ function goAuth(screen){
 
 // toggleTos — override block below handles both landing and app contexts
 
-function doLogin(){
-  // Demo mode — no real auth needed
-  goAuth('org-select');
-}
+// doLogin defined above
 
 function loadTemplate(){
   if(!tosChecked){ showToast('Please agree to Terms of Service first'); return; }
