@@ -2490,7 +2490,7 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
         <div style="font-size:13px;color:var(--muted)">Sign in with your school email to continue</div>
       </div>
 
-      <button class="oauth-btn" onclick="showOnboard()">
+      <button class="oauth-btn" onclick="signInWithGoogle()">
         <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6,20.1H42V20H24v8h11.3C33.7,32.7,29.3,36,24,36c-6.6,0-12-5.4-12-12s5.4-12,12-12c3.1,0,5.8,1.2,8,3l5.7-5.7C34,6.1,29.3,4,24,4C12.9,4,4,13,4,24s8.9,20,20,20s20-9,20-20C44,22.7,43.9,21.4,43.6,20.1z"/><path fill="#FF3D00" d="M6.3,14.7l6.6,4.8C14.6,15.1,18.9,12,24,12c3.1,0,5.8,1.2,8,3l5.7-5.7C34,6.1,29.3,4,24,4C16.3,4,9.7,8.3,6.3,14.7z"/><path fill="#4CAF50" d="M24,44c5.2,0,9.8-2,13.4-5.2l-6.2-5.2C29.2,35.1,26.7,36,24,36c-5.2,0-9.6-3.3-11.3-7.9l-6.5,5C9.5,39.6,16.2,44,24,44z"/><path fill="#1976D2" d="M43.6,20.1H42V20H24v8h11.3c-0.8,2.2-2.2,4.2-4.1,5.6l6.2,5.2C37,39.2,44,34,44,24C44,22.7,43.9,21.4,43.6,20.1z"/></svg>
         <span class="oauth-btn-label">Continue with Google</span>
         <span class="oauth-domain-badge">@university.edu</span>
@@ -2538,7 +2538,17 @@ label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:v
       <button class="auth-back" onclick="showAuthScreens();switchTab('signup')">&#8592; Back</button>
       <div style="text-align:center;margin-bottom:18px">
         <div style="font-size:17px;font-weight:600;color:var(--ice);margin-bottom:4px">Create your account</div>
-        <div style="font-size:13px;color:var(--muted)">Use any email address to get started</div>
+        <div style="font-size:13px;color:var(--muted)">Use your school email to get started</div>
+      </div>
+      <button class="oauth-btn" onclick="signInWithGoogle()" style="margin-bottom:4px">
+        <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6,20.1H42V20H24v8h11.3C33.7,32.7,29.3,36,24,36c-6.6,0-12-5.4-12-12s5.4-12,12-12c3.1,0,5.8,1.2,8,3l5.7-5.7C34,6.1,29.3,4,24,4C12.9,4,4,13,4,24s8.9,20,20,20s20-9,20-20C44,22.7,43.9,21.4,43.6,20.1z"/><path fill="#FF3D00" d="M6.3,14.7l6.6,4.8C14.6,15.1,18.9,12,24,12c3.1,0,5.8,1.2,8,3l5.7-5.7C34,6.1,29.3,4,24,4C16.3,4,9.7,8.3,6.3,14.7z"/><path fill="#4CAF50" d="M24,44c5.2,0,9.8-2,13.4-5.2l-6.2-5.2C29.2,35.1,26.7,36,24,36c-5.2,0-9.6-3.3-11.3-7.9l-6.5,5C9.5,39.6,16.2,44,24,44z"/><path fill="#1976D2" d="M43.6,20.1H42V20H24v8h11.3c-0.8,2.2-2.2,4.2-4.1,5.6l6.2,5.2C37,39.2,44,34,44,24C44,22.7,43.9,21.4,43.6,20.1z"/></svg>
+        <span class="oauth-btn-label">Sign up with Google</span>
+        <span class="oauth-domain-badge">@university.edu</span>
+      </button>
+      <div class="auth-divider" style="margin:14px 0 10px">
+        <div class="auth-divider-line"></div>
+        <span class="auth-divider-text">or sign up with email</span>
+        <div class="auth-divider-line"></div>
       </div>
       <label class="auth-label">Your name</label>
       <input class="auth-input" type="text" id="email-signup-name" placeholder="First Last" autocomplete="name"/>
@@ -2812,13 +2822,53 @@ async function loadUserOrg(user) {
   renderAll()
 }
 
-// Auto-login returning users
+
+/* ── Google OAuth ── */
+async function signInWithGoogle() {
+  const { error } = await _supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin,
+      queryParams: { prompt: 'select_account' }   // always show account picker
+    }
+  });
+  if (error) showToast(error.message, 'red');
+}
+
+// Auto-login returning users (also handles Google OAuth callback)
 _supabase.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session) {
-    await loadUserOrg(session.user)
-    goToApp()
+    const user = session.user;
+    const email = user.email || '';
+    // If signing up via Google, check for existing profile
+    const { data: profile } = await _supabase
+      .from('profiles').select('*').eq('id', user.id).single();
+    if (profile && profile.org_id) {
+      // Existing user — load their org and go to dashboard
+      await loadUserOrg(user);
+      goToApp();
+    } else {
+      // New user via Google — show org setup screen
+      closeAuth();
+      window._signupName = user.user_metadata?.full_name || '';
+      var appLayer = document.getElementById('app-layer');
+      var authLayer = document.getElementById('auth-layer');
+      if (appLayer) appLayer.style.display = 'flex';
+      if (authLayer) authLayer.style.display = 'flex';
+      // Re-open auth modal on org setup screen
+      var modal = document.getElementById('auth-modal');
+      if (modal) modal.style.display = 'flex';
+      document.getElementById('auth-tabs').style.display = 'none';
+      ['login','signup','signup-email','role','onboard'].forEach(function(s){
+        var el = document.getElementById('screen-' + s);
+        if (el) el.classList.remove('active');
+      });
+      var orgSetup = document.getElementById('screen-org-setup');
+      if (orgSetup) orgSetup.classList.add('active');
+    }
   } else if (event === 'SIGNED_OUT') {
-    document.getElementById('app-layer').style.display = 'none'
+    var appLayer = document.getElementById('app-layer');
+    if (appLayer) appLayer.style.display = 'none';
   }
 })
 
