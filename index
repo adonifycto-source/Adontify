@@ -1,154 +1,24 @@
-<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co; img-src 'self' data:; font-src https://fonts.gstatic.com;"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Adonify — Maintenance</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet"/>
-=======
-
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src https://fonts.gstatic.com;"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Adonify — Build Mighty Leaders</title>
+<title>Adonify</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet"/>
->>>>>>> Stashed changes
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const _supabase = window.supabase.createClient(
+    'https://urgjcgpdpbxwxigcepwl.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZ2pjZ3BkcGJ4d3hpZ2NlcHdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2OTMxMTAsImV4cCI6MjA5ODI2OTExMH0.Wvld5FpEwoZRNeL2ecDXYh5z42iwUzbbAHJXUM76FoQ'
+  );
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-<<<<<<< Updated upstream
-    --bg:    #070F18;
-    --card:  #0D1B2A;
-    --border:#1C3050;
-    --amber: #F5A623;
-    --muted: #5A7A9A;
-    --ice:   #E8F4FD;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--ice);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 32px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* Ambient glow */
-  body::before {
-    content: '';
-    position: fixed;
-    width: 600px; height: 400px;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -60%);
-    border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(245,166,35,.1) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 48px;
-    opacity: .9;
-  }
-
-  .logo-text {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--amber);
-    letter-spacing: 0.04em;
-  }
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 52px 48px;
-    max-width: 480px;
-    width: 100%;
-    position: relative;
-  }
-
-  .icon {
-    font-size: 42px;
-    margin-bottom: 20px;
-    display: block;
-  }
-
-  h1 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 36px;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 12px;
-    letter-spacing: -0.01em;
-  }
-
-  p {
-    font-size: 15px;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-bottom: 32px;
-  }
-
-  .status-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--amber);
-  }
-
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--amber);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: .4; transform: scale(.8); }
-  }
-
-  .divider {
-    width: 48px; height: 2px;
-    background: var(--amber);
-    border-radius: 2px;
-    margin: 28px auto;
-    opacity: .35;
-  }
-
-  .email {
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .email a {
-    color: var(--amber);
-    text-decoration: none;
-  }
-
-  .email a:hover { text-decoration: underline; }
-=======
     --bg:       #070F18;
     --card:     #0D1B2A;
     --lift:     #152236;
@@ -2403,44 +2273,10 @@ label.toggle input{opacity:0;width:0;height:0;position:absolute}
 .toggle-thumb{position:absolute;left:3px;top:3px;width:14px;height:14px;background:var(--muted);border-radius:50%;transition:transform .2s,background .2s;pointer-events:none}
 label.toggle input:checked~.toggle-track{background:rgba(245,166,35,.2);border-color:var(--amber)}
 label.toggle input:checked~.toggle-thumb{transform:translateX(18px);background:var(--amber)}
->>>>>>> Stashed changes
 </style>
 </head>
 <body>
 
-<<<<<<< Updated upstream
-<div class="logo">
-  <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-    <polygon points="4,28 14,4 24,16 28,28" fill="#1A3A5C"/>
-    <polygon points="4,28 14,4 10,28" fill="#0D2240"/>
-    <polyline points="7,26 10,17 14,4" fill="none" stroke="#F5A623" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="7" cy="26" r="2.2" fill="#F5A623"/>
-    <circle cx="10" cy="17" r="2.2" fill="#F5A623"/>
-    <polygon points="14,4 17,12 11,12" fill="#F5A623"/>
-  </svg>
-  <span class="logo-text">ADONIFY</span>
-</div>
-
-<div class="card">
-  <span class="icon">🔧</span>
-  <h1>Maintenance in Progress</h1>
-  <p>We're making improvements to Adonify. The site will be back up shortly — thanks for your patience.</p>
-
-  <div class="status-row">
-    <div class="dot"></div>
-    Actively working on it
-  </div>
-
-  <div class="divider"></div>
-
-  <p class="email">
-    Questions? Reach us at <a href="mailto:hello@adonify.io">hello@adonify.io</a>
-  </p>
-</div>
-
-</body>
-</html>
-=======
 <!-- NAV -->
 <div id="grain" aria-hidden="true"></div>
 <nav>
@@ -2931,17 +2767,22 @@ function doLogin() {
 
 /* ── Sign up ── */
 function doSignup() {
-  var org  = document.getElementById('signup-org').value.trim();
-  var name = document.getElementById('signup-name').value.trim();
-  var email= document.getElementById('signup-email').value.trim();
-  var pass = document.getElementById('signup-pass').value;
-  if (!name) { document.getElementById('signup-name').focus();  return; }
-  if (!email){ document.getElementById('signup-email').focus(); return; }
-  if (!pass) { document.getElementById('signup-pass').focus();  return; }
-  // Store org name so climbr-admin.html can pick it up
-  try { localStorage.setItem('climbr_pending_org', org); localStorage.setItem('climbr_pending_name', name); } catch(e){}
-  showOnboard();
+  async function doSignup() {
+  const name  = document.getElementById('signup-name').value.trim()
+  const email = document.getElementById('signup-email').value.trim()
+  const pass  = document.getElementById('signup-pass').value
+  if (!email || !pass) return;
+
+  const { data, error } = await _supabase.auth.signUp({
+    email, password: pass,
+    options: { data: { full_name: name } }
+  })
+
+  if (error) { showToast(error.message, 'red'); return; }
+  // Proceed to role selection screen
+  goToRoleSelect()
 }
+
 
 /* ── TOS toggle ── */
 /* toggleTos — defined in override block */
@@ -3032,10 +2873,56 @@ document.addEventListener('keydown', function(e) {
         <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-pass" type="password" placeholder="••••••••"/></div>
         <button class="btn btn-primary" style="width:100%;padding:12px;font-size:15px;justify-content:center;margin-bottom:14px" onclick="doLogin()">Log In →</button>
         <div class="auth-divider">or</div>
-        <button class="auth-ghost" style="margin-top:8px" onclick="doLogin()">Create a new account</button>
-      </div>
-      <div class="auth-note">This is a demo — no account required.<br/>Click either button to explore. <span class="auth-link">Terms</span> · <span class="auth-link">Privacy</span></div>
-    </div>
+        <button class="auth-ghost" style="margin-top:8px" onclick="doLogin()async function doLogin() {
+  const email = document.getElementById('login-email').value.trim()
+  const pass  = document.getElementById('login-pass').value
+
+  const { data, error } = await _supabase.auth.signInWithPassword({
+    email, password: pass
+  })
+
+  if (error) { showToast('Invalid email or password', 'red'); return; }
+  // Load their org and go to dashboard
+  await loadUserOrg(data.user)
+  goToApp()
+}
+async function loadUserOrg(user) {
+  // Get the user's profile (which contains their org_id)
+  const { data: profile } = await _supabase
+    .from('profiles').select('*').eq('id', user.id).single()
+
+  if (!profile || !profile.org_id) {
+    // New user — no org yet, send to onboarding
+    showOnboard(); return;
+  }
+
+  // Load org details
+  const { data: org } = await _supabase
+    .from('organizations').select('*').eq('id', profile.org_id).single()
+
+  // Load members, sorted by points
+  const { data: members } = await _supabase
+    .from('members').select('*')
+    .eq('org_id', profile.org_id)
+    .order('points', { ascending: false })
+
+  // Update the global data object (D) that the dashboard reads from
+  D.orgName = org.name
+  D.season  = org.season_label
+  D.members = members || []
+  renderDashboard()
+}
+// Auto-login returning users
+_supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    await loadUserOrg(session.user)
+    goToApp()
+  } else if (event === 'SIGNED_OUT') {
+    // Show landing page
+    document.getElementById('app-layer').style.display = 'none'
+  }
+})
+
 
     <!-- ORG SELECT -->
     <div class="auth-screen" id="auth-org-select">
@@ -3113,6 +3000,26 @@ document.addEventListener('keydown', function(e) {
   </div>
   </div><!-- /auth-panel -->
 </div>
+async function createOrg(orgName, school) {
+  const user = (await _supabase.auth.getUser()).data.user
+
+  // Create the organization
+  const { data: org } = await _supabase
+    .from('organizations')
+    .insert({ name: orgName, school: school })
+    .select().single()
+
+  // Create a profile linking this user to the org as an officer
+  await _supabase.from('profiles').upsert({
+    id: user.id,
+    full_name: user.user_metadata?.full_name,
+    org_id: org.id,
+    role: 'officer'
+  })
+
+  D.orgName = org.name
+  D.orgId   = org.id
+}
 
 <div id="app">
 
@@ -7870,4 +7777,3 @@ function launchApp(mode){
       <div style="display:flex;gap:10px">
         <button onclick="wizardBack()" class="btn btn-secondary" style="flex:1">&#8592; Back</button>
         <button onclick="wizardFinish()" class="auth-submit" style="flex:2;margin-top:0;background:var(--green)">&#10003
->>>>>>> Stashed changes
